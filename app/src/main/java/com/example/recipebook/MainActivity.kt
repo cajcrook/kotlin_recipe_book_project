@@ -57,7 +57,11 @@ class MainActivity : ComponentActivity() {
                             "Recipe Book",
                             fontSize = 32.sp,
                             color = Color.Black,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .clickable(onClick = {
+                                    navController.navigate("welcome_page")
+                                })
                         )
                     },
                     navigationIcon = {

@@ -1,7 +1,14 @@
 <resources>
     <string name="app_name">RecipeBook</string>
+    <string name="Category_Italian">🇮🇹 Italian</string>
     <string name="Pizza_Recipe">Pizza Recipe</string>
-    <string name="RecipeName2">Recipe Name 2</string>
-    <string name="RecipeName3">Recipe Name 3</string>
-    <string name="RecipeName4">Recipe Name 4</string>
+    <string name="Italian_Recipe_2">Italian Recipe 2</string>
+    <string name="Italian_Recipe_3">Italian Recipe 3</string>
+    <string name="Italian_Recipe_4">Italian Recipe 4</string>
+    <string name="Category_Japanese">🇯🇵 Japanese</string>
+    <string name="Japanese_Recipe_1">Japanese Recipe 1</string>
+    <string name="Japanese_Recipe_2">Japanese Recipe 2</string>
+    <string name="Japanese_Recipe_3">Japanese Recipe 3</string>
+    <string name="Japanese_Recipe_4">Japanese Recipe 4</string>
+
 </resources>

@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,8 +49,14 @@ fun App() {
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "recipes_list") {
+    NavHost(navController = navController, startDestination = "welcome_page") {
 
+        composable(route = "welcome_page") {
+            WelcomePage(
+                onRecipeButtonClick = {navController.navigate("recipes_list")
+                }
+            )
+        }
         composable(route = "recipes_list") {
             RecipeListPage(
                 recipes = listOf(),
@@ -63,11 +70,43 @@ fun App() {
     }
 }
 
-
 data class Recipe(
     val name: Int,
     val image: Int
 )
+
+@Composable
+fun WelcomePage(onRecipeButtonClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Welcome!",
+                fontSize = 32.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onRecipeButtonClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                Text(text = "Click here for recipes")
+            }
+        }
+    }
+}
 
 @Composable
 fun RecipeListPage(recipes: List<Recipe>, modifier: Modifier = Modifier, onNextScreen: () -> Unit) {

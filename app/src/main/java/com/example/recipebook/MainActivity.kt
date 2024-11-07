@@ -121,10 +121,14 @@ class MainActivity : ComponentActivity() {
                 }
 
                 composable(route = "italian_details") {
-                    ItalianRecipeDetailsScreen()
+                    ItalianRecipeDetailsScreen(onBackClick = {
+                        navController.navigate("italian")
+                    })
                 }
                 composable(route = "japanese_details") {
-                    JapaneseRecipeDetailsScreen()
+                    JapaneseRecipeDetailsScreen(onBackClick = {
+                        navController.navigate("japanese")
+                    })
                 }
             }
         }
@@ -348,25 +352,132 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ItalianRecipeDetailsScreen() {
-        Text(
+    fun ItalianRecipeDetailsScreen(
+        recipeName: String = "Marinara Pizza",// Pass the recipe name here if dynamic
+        onBackClick: () -> Unit                 // Pass the back navigation function here
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp),
-            text = "ItalianRecipeDetailsScreen",
-        )
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Title
+            Text(
+                text = "Recipe Book",
+                fontSize = 32.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Subtitle with Recipe Name
+            Text(
+                text = recipeName,
+                fontSize = 24.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Description
+            Text(
+                text = "This is a delicious recipe that is a must-try for Italian cuisine lovers.\nIngredients:\n" +
+                        "8.8/11.6oz (250/330g) pizza dough\n" +
+                        "400g can of San Marzano plum tomatoes\n" +
+                        "Clove of garlic\n" +
+                        "Anchovies\n" +
+                        "Olives\n"+
+                        "½ tbsp dried oregano\n" +
+                        "Fine sea salt\n" +
+                        "Extra virgin olive oil",
+
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Back Button
+            Button(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                Text(text = "Back to Italian Recipes")
+            }
+        }
     }
 
     @Composable
-    fun JapaneseRecipeDetailsScreen() {
-        Text(
+    fun JapaneseRecipeDetailsScreen(
+        recipeName: String = "Japanese Recipe",  // Pass the recipe name here if dynamic
+        onBackClick: () -> Unit                  // Pass the back navigation function here
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp),
-            text = "JapaneseRecipeDetailsScreen",
-        )
-    }
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Title
+            Text(
+                text = "Recipe Book",
+                fontSize = 32.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Subtitle with Recipe Name
+            Text(
+                text = recipeName,
+                fontSize = 24.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Description
+            Text(
+                text = "This recipe captures the authentic taste of Japanese cuisine. Enjoy your cooking!\nIngredients\n" +
+                        "2 cups Sushi Rice (14 ounces/400 grams)\n" +
+                        "7 ounces Smoked Salmon (200 grams), See note 1\n" +
+                        "1 Large Ripe Avocado\n" +
+                        "1 Small Cucumber\n" +
+                        "1 Small Carrot , optional\n" +
+                        "5 Nori Sheets\n" +
+                        "¼ cup Rice Vinegar (60 ml)\n" +
+                        "1 tablespoon Sugar\n" +
+                        "1 teaspoon Salt\n" +
+                        "Optional Condiments:\n" +
+                        "Soy Sauce\n" +
+                        "Pickled Ginger\n" +
+                        "Wasabi Paste",
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Back Button
+            Button(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                Text(text = "Back to Japanese Recipes")
+            }
+        }
+    }
     @Preview(showBackground = true)
     @Composable
     fun RecipePreview() {

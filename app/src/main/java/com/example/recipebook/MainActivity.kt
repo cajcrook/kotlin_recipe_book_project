@@ -10,26 +10,33 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.recipebook.ui.theme.RecipeBookTheme
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,13 +83,18 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
-
                 )
             }
         ) { paddingValues ->
-            NavHost(navController = navController, startDestination = "welcome_page") {
-
-                composable(route = "welcome_page") {
+            Box(modifier = Modifier.padding(paddingValues))
+            NavHost(
+                navController = navController,
+                startDestination = "welcome_page"
+            )
+            {
+                composable(
+                    route = "welcome_page"
+                ) {
                     WelcomePage(
                         onRecipeButtonClick = { navController.navigate("category_page") }
                     )
@@ -99,49 +111,72 @@ class MainActivity : ComponentActivity() {
                 composable(route = "italian") {
                     ItalianRecipePage(
                         recipes = listOf(
-                            Recipe(R.string.Pizza_Recipe, R.drawable.pizza),
-                            Recipe(R.string.Italian_Recipe_2, R.drawable.pizza),
-                            Recipe(R.string.Italian_Recipe_3, R.drawable.pizza),
-                            Recipe(R.string.Italian_Recipe_3, R.drawable.pizza)
+                            Recipe(R.string.Pizza_Recipe, R.drawable.pizza, R.string.Italian_Description_1),
+                            Recipe(R.string.Italian_Recipe_2, R.drawable.pizza, R.string.Italian_Description_2),
+                            Recipe(R.string.Italian_Recipe_3, R.drawable.pizza, R.string.Italian_Description_3),
+                            Recipe(R.string.Italian_Recipe_4, R.drawable.pizza, R.string.Italian_Description_4)
                         ),
-                        italianOnNextScreen = { navController.navigate("italian_details") }
+                        italianOnNextScreen = { recipe ->
+                            navController.navigate("italian_details/${recipe.name}/${recipe.instruction}")
+                        }
                     )
                 }
 
                 composable(route = "japanese") {
                     JapaneseRecipePage(
                         recipes = listOf(
-                            Recipe(R.string.Japanese_Recipe_1, R.drawable.sushi),
-                            Recipe(R.string.Japanese_Recipe_2, R.drawable.sushi),
-                            Recipe(R.string.Japanese_Recipe_3, R.drawable.sushi),
-                            Recipe(R.string.Japanese_Recipe_4, R.drawable.sushi),
+                            Recipe(R.string.Japanese_Recipe_1, R.drawable.sushi, R.string.Japanese_Description_1),
+                            Recipe(R.string.Japanese_Recipe_2, R.drawable.sushi, R.string.Japanese_Description_2),
+                            Recipe(R.string.Japanese_Recipe_3, R.drawable.sushi, R.string.Japanese_Description_3),
+                            Recipe(R.string.Japanese_Recipe_4, R.drawable.sushi, R.string.Japanese_Description_4),
                         ),
-                        japaneseOnNextScreen = { navController.navigate("japanese_details") }
+                        japaneseOnNextScreen = { recipe ->
+                            navController.navigate("japanese_details/${recipe.name}/${recipe.instruction}")
+                        }
                     )
                 }
 
-                composable(route = "italian_details") {
-                    ItalianRecipeDetailsScreen(onBackClick = {
-                        navController.navigate("italian")
-                    })
+                composable(
+                    route = "italian_details/{recipeName}/{recipeDescription}",
+                    arguments = listOf(
+                        navArgument("recipeName") { type = NavType.IntType },
+                        navArgument("recipeDescription") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val recipeNameId = backStackEntry.arguments?.getInt("recipeName") ?: R.string.default_name
+                    val recipeDescriptionId = backStackEntry.arguments?.getInt("recipeDescription") ?: R.string.default_description
+
+                    ItalianRecipeDetailsScreen(
+                        recipeName = stringResource(id = recipeNameId),
+                        recipeDescription = stringResource(id = recipeDescriptionId),
+                        onBackClick = { navController.navigate("italian") }
+                    )
                 }
-                composable(route = "japanese_details") {
-                    JapaneseRecipeDetailsScreen(onBackClick = {
-                        navController.navigate("japanese")
-                    })
+
+
+                composable(
+                    route = "japanese_details/{recipeName}/{recipeDescription}",
+                    arguments = listOf(
+                        navArgument("recipeName") { type = NavType.IntType },
+                        navArgument("recipeDescription") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val recipeNameId = backStackEntry.arguments?.getInt("recipeName") ?: R.string.default_name
+                    val recipeDescriptionId = backStackEntry.arguments?.getInt("recipeDescription") ?: R.string.default_description
+
+                    JapaneseRecipeDetailsScreen(
+                        recipeName = stringResource(id = recipeNameId),
+                        recipeDescription = stringResource(id = recipeDescriptionId),
+                        onBackClick = { navController.navigate("japanese") }
+                    )
+                }
                 }
             }
         }
     }
 
-    data class Recipe(
-        val name: Int,
-        val image: Int
-    )
-
-    data class Category(
-        val category: Int
-    )
+    data class Recipe(val name: Int, val image: Int, val instruction: Int)
+    data class Category(val category: Int)
 
     @Composable
     fun WelcomePage(onRecipeButtonClick: () -> Unit) {
@@ -193,6 +228,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = "What's your favourite cuisine?!",
                 color = Color.Black,
+                fontSize = 28.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -207,7 +243,7 @@ class MainActivity : ComponentActivity() {
                     val categoryName = when (category.category) {
                         R.string.Category_Italian -> "italian"
                         R.string.Category_Japanese -> "japanese"
-                        else -> "Unknown" // Add additional mappings as needed
+                        else -> "Unknown"
                     }
                     CategoryOptions(category) {
                         onCategoryButtonClick(categoryName)
@@ -238,20 +274,23 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ItalianRecipePage(
-        recipes: List<Recipe>,  // Keep this as a parameter
-        modifier: Modifier = Modifier,
-        italianOnNextScreen: () -> Unit
+        recipes: List<Recipe>,
+        italianOnNextScreen: (Recipe) -> Unit
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
             Text(
-                text = "Italian Recipe List!!!",
+                text = "Italian Recipe List!",
+                fontSize = 28.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 80.dp)
+
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -264,14 +303,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     @Composable
-    fun ItalianRecipeItem(recipe: Recipe, italianOnNextScreen: () -> Unit) {
+    fun ItalianRecipeItem(
+        recipe: Recipe,
+        italianOnNextScreen: (Recipe) -> Unit) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
+                .statusBarsPadding()
         ) {
             Image(
                 painter = painterResource(recipe.image),
@@ -281,15 +320,70 @@ class MainActivity : ComponentActivity() {
                     .height(300.dp)
             )
             Button(onClick = {
-                italianOnNextScreen()
+                italianOnNextScreen(recipe)
             }) {
                 Text(
                     text = stringResource(id = recipe.name),
                     color = Color.White,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
+            }
+        }
+    }
+
+    @Composable
+    fun ItalianRecipeDetailsScreen(
+        recipeName: String,
+        recipeDescription: String,
+        onBackClick: () -> Unit
+    ) {
+        val isLiked = remember { mutableStateOf(false) }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
+            Text(
+                text = recipeName,
+                fontSize = 28.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 80.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = recipeDescription,
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            IconButton(
+                onClick = { isLiked.value = !isLiked.value },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Icon(
+                    imageVector = if (isLiked.value) Icons.Filled.Favorite else Icons.Outlined.Favorite,
+                    contentDescription = "Like Button",
+                    tint = if (isLiked.value) Color.Red else Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                Text(text = "Back to Italian Recipes")
             }
         }
     }
@@ -297,19 +391,21 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun JapaneseRecipePage(
         recipes: List<Recipe>,
-        modifier: Modifier = Modifier,
-        japaneseOnNextScreen: () -> Unit
+        japaneseOnNextScreen: (Recipe) -> Unit
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
             Text(
-                text = "Japanese Recipe List!!!",
+                text = "Japanese Recipe List!",
                 color = Color.Black,
+                fontSize = 28.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 80.dp)
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -323,12 +419,11 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun JapaneseRecipeItem(recipe: Recipe, japaneseOnNextScreen: () -> Unit) {
+    fun JapaneseRecipeItem(recipe: Recipe, japaneseOnNextScreen: (Recipe) -> Unit) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
+                .statusBarsPadding()
         ) {
             Image(
                 painter = painterResource(recipe.image),
@@ -338,128 +433,42 @@ class MainActivity : ComponentActivity() {
                     .height(300.dp)
             )
             Button(onClick = {
-                japaneseOnNextScreen()
+                japaneseOnNextScreen(recipe)
             }) {
                 Text(
                     text = stringResource(id = recipe.name),
                     color = Color.White,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
     }
 
     @Composable
-    fun ItalianRecipeDetailsScreen(
-        recipeName: String = "Marinara Pizza",// Pass the recipe name here if dynamic
-        onBackClick: () -> Unit                 // Pass the back navigation function here
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Title
-            Text(
-                text = "Recipe Book",
-                fontSize = 32.sp,
-                color = Color.Black,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Subtitle with Recipe Name
-            Text(
-                text = recipeName,
-                fontSize = 24.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Description
-            Text(
-                text = "This is a delicious recipe that is a must-try for Italian cuisine lovers.\nIngredients:\n" +
-                        "8.8/11.6oz (250/330g) pizza dough\n" +
-                        "400g can of San Marzano plum tomatoes\n" +
-                        "Clove of garlic\n" +
-                        "Anchovies\n" +
-                        "Olives\n"+
-                        "½ tbsp dried oregano\n" +
-                        "Fine sea salt\n" +
-                        "Extra virgin olive oil",
-
-                fontSize = 16.sp,
-                color = Color.DarkGray,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Back Button
-            Button(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-            ) {
-                Text(text = "Back to Italian Recipes")
-            }
-        }
-    }
-
-    @Composable
     fun JapaneseRecipeDetailsScreen(
-        recipeName: String = "Japanese Recipe",  // Pass the recipe name here if dynamic
-        onBackClick: () -> Unit                  // Pass the back navigation function here
+        recipeName: String,
+        recipeDescription: String,
+        onBackClick: () -> Unit
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .statusBarsPadding()
         ) {
-            // Title
-            Text(
-                text = "Recipe Book",
-                fontSize = 32.sp,
-                color = Color.Black,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Subtitle with Recipe Name
             Text(
                 text = recipeName,
                 fontSize = 24.sp,
                 color = Color.Gray,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 80.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Description
             Text(
-                text = "This recipe captures the authentic taste of Japanese cuisine. Enjoy your cooking!\nIngredients\n" +
-                        "2 cups Sushi Rice (14 ounces/400 grams)\n" +
-                        "7 ounces Smoked Salmon (200 grams), See note 1\n" +
-                        "1 Large Ripe Avocado\n" +
-                        "1 Small Cucumber\n" +
-                        "1 Small Carrot , optional\n" +
-                        "5 Nori Sheets\n" +
-                        "¼ cup Rice Vinegar (60 ml)\n" +
-                        "1 tablespoon Sugar\n" +
-                        "1 teaspoon Salt\n" +
-                        "Optional Condiments:\n" +
-                        "Soy Sauce\n" +
-                        "Pickled Ginger\n" +
-                        "Wasabi Paste",
+                text = recipeDescription,
                 fontSize = 16.sp,
                 color = Color.DarkGray,
                 textAlign = TextAlign.Center
@@ -467,7 +476,6 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Back Button
             Button(
                 onClick = onBackClick,
                 modifier = Modifier
@@ -478,11 +486,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    @Preview(showBackground = true)
-    @Composable
-    fun RecipePreview() {
-        RecipeBookTheme {
-            App()
-        }
-    }
-}
+
